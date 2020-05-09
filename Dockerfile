@@ -1,12 +1,15 @@
-FROM		ubuntu:16.04
-MAINTAINER	shlee.mars@gmail.com
-LABEL 		authors="shlee.mars@gmail.com, gcccompil3r@gmail.com"
+FROM		ubuntu:18.04
+MAINTAINER	gcccompil3r@gmail.com
+LABEL 		authors="gcccompil3r@gmail.com"
 
-#build with docker build --build-arg PETALINUX_INSTALLER=petalinux-v2017.4-final-installer.run -t petalinux
+#build with docker build --build-arg PETALINUX_INSTALLER=petalinux-v2019.2-final-installer.run -t petalinux
 
 #RUN apt-get update -o Acquire::CompressionTypes::Order::=gz
 
 ARG PETALINUX_INSTALLER
+ARG PETALINUX
+
+#ENV DEBIAN_FRONTEND=noninteractive
 
 # add sourcelist
 RUN sed -i 's/archive.ubuntu.com/kr.archive.ubuntu.com/g' /etc/apt/sources.list && \
@@ -17,14 +20,34 @@ RUN sed -i 's/archive.ubuntu.com/kr.archive.ubuntu.com/g' /etc/apt/sources.list 
 # Issue - https://forums.xilinx.com/t5/Embedded-Linux/Petalinux-2017-4-docker-container/td-p/825802
 # Issue - If you wanna need some edit then you need editing tools like vim
 # package update
-RUN apt-get -y update && \
-    apt-get -y install build-essential sudo expect emacs openssh-server && \
-    apt-get -y install gcc gawk diffstat xvfb chrpath socat xterm autoconf libtool libtool-bin python git net-tools zlib1g-dev libncurses5-dev libssl-dev xz-utils locales wget tftpd cpio gcc-multilib tofrodos iproute gnupg flex bison unzip
+RUN apt-get -y update
+
+# Solve Time Zone Problem
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install Apt-Utils
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends apt-utils
+
+# build-essential sudo expect emacs openssh-server
+RUN apt-get -y install build-essential sudo expect emacs openssh-server
+
+# gcc gawk diffstat xvfb chrpath socat xterm autoconf libtool libtool-bin python git net-tools zlib1g-dev libncurses5-dev libssl-dev xz-utils locales
+RUN apt-get -y install gcc gawk diffstat xvfb chrpath socat xterm autoconf libtool libtool-bin python git net-tools zlib1g-dev libncurses5-dev libssl-dev xz-utils locales
+
+# wget tftpd cpio gcc-multilib tofrodos iproute2 gnupg flex bison unzip make
+RUN apt-get -y install wget tftpd cpio gcc-multilib tofrodos iproute2 gnupg flex bison unzip make
 
 RUN apt-get -y install texinfo libsdl1.2-dev libglib2.0-dev zlib1g:i386 screen lsb-release vim
 
 # There are libgtk Issue
 RUN apt-get -y install libgtk2.0-dev
+
+# Needs libselinux1
+RUN apt-get -y install libselinux1
+
+# Needs tar
+RUN apt-get -y install tar
 
 # locale update
 RUN locale-gen en_US.UTF-8 && \
