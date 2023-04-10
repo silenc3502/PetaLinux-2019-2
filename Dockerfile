@@ -47,7 +47,7 @@ RUN apt-get -y install libgtk2.0-dev
 RUN apt-get -y install libselinux1
 
 # Needs tar
-RUN apt-get -y install tar
+RUN apt-get -y install tar rsync
 
 # locale update
 RUN locale-gen en_US.UTF-8 && \
