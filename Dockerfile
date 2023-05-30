@@ -58,6 +58,8 @@ RUN chmod +x /home/vivado/${PETALINUX_INSTALLER}
 RUN /home/vivado/accept-eula.sh /home/vivado/${PETALINUX_INSTALLER} /opt/pkg/petalinux
 RUN echo "export TERM=linux" >> /home/vivado/.bashrc
 RUN echo "source /opt/pkg/petalinux/settings.sh" >> /home/vivado/.bashrc
+# fix screen startup issue
+RUN echo "ulimit -n 1024" >> /home/vivado/.bashrc
 RUN rm -rf accept-eula.sh ${PETALINUX_INSTALLER}
 
 # copy Zybo-Z7-10 BSP
